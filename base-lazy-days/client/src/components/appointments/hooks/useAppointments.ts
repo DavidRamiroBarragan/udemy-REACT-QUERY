@@ -34,6 +34,8 @@ interface UseAppointments {
   setShowAll: Dispatch<SetStateAction<boolean>>;
 }
 
+const commonsOptions = { staleTime: 0, cacheTime: 300000 };
+
 // The purpose of this hook:
 //   1. track the current month/year (aka monthYear) selected by the user
 //     1a. provide a way to update state
@@ -80,6 +82,9 @@ export function useAppointments(): UseAppointments {
     queryClient.prefetchQuery(
       [queryKeys.appointments, nextMonth.year, nextMonth.month],
       () => getAppointments(nextMonth.year, nextMonth.month),
+      {
+        ...commonsOptions,
+      },
     );
   }, [monthYear, queryClient, selectFn, showAll]);
 
@@ -94,6 +99,11 @@ export function useAppointments(): UseAppointments {
     () => getAppointments(monthYear.year, monthYear.month),
     {
       select: showAll ? undefined : selectFn,
+      ...commonsOptions,
+      refetchOnMount: true,
+      refetchOnWindowFocus: true,
+      refetchOnReconnect: true,
+      refetchInterval: 60000,
     },
   );
 
